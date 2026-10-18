@@ -618,6 +618,52 @@
   line-height: 1.5;
 }
 
+.device-picker {
+  min-width: 0;
+  margin: -2px 0 0;
+  border: 1px solid #e6e7ee;
+  border-radius: 9px;
+  padding: 11px 12px 12px;
+}
+
+.device-picker legend {
+  padding: 0 4px;
+  color: #5d6276;
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.device-options {
+  display: grid;
+  gap: 9px;
+}
+
+.device-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #484d60;
+  font-size: 12px;
+  font-weight: 450;
+}
+
+.device-options input {
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  accent-color: #6857e8;
+}
+
+.device-options small {
+  margin-left: auto;
+  color: #bd7c32;
+  font-size: 10px;
+}
+
+.device-unavailable {
+  opacity: 0.65;
+}
+
 .form-error {
   margin-top: -8px;
   color: #bd4545;

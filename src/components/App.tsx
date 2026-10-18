@@ -72,15 +72,25 @@ function BookingForm({
   onClose,
 }: BookingFormProps) {
   const dispatch = useAppDispatch()
-  const availableResources = resources.filter((resource) => resource.status === 'available')
+  const availableRooms = resources.filter(
+    (resource) => resource.type === 'room' && resource.status === 'available',
+  )
+  const devices = resources.filter((resource) => resource.type === 'device')
   const resourcesByType = {
     room: resources.filter((resource) => resource.type === 'room'),
-    device: resources.filter((resource) => resource.type === 'device'),
+    device: devices,
   }
   const [bookingDate, setBookingDate] = useState(date)
-  const [resourceId, setResourceId] = useState(
-    initialResourceId ?? availableResources[0]?.id ?? '',
-  )
+  const [roomId, setRoomId] = useState(() => {
+    const initialRoom = availableRooms.find(({ id }) => id === initialResourceId)
+    return initialRoom?.id ?? availableRooms[0]?.id ?? ''
+  })
+  const [deviceIds, setDeviceIds] = useState<string[]>(() => {
+    const initialDevice = devices.find(
+      ({ id, status }) => id === initialResourceId && status === 'available',
+    )
+    return initialDevice ? [initialDevice.id] : []
+  })
   const [startTime, setStartTime] = useState(initialStartTime ?? '09:00')
   const [endTime, setEndTime] = useState(() => {
     const start = initialStartTime
@@ -90,20 +100,33 @@ function BookingForm({
   })
   const [title, setTitle] = useState('')
 
+  const selectedResourceIds = [roomId, ...deviceIds].filter(Boolean)
   const validInterval = startTime !== '' && endTime !== '' && endTime > startTime
   const conflict = useAppSelector((state) =>
-    validInterval
+    validInterval && selectedResourceIds.length > 0
       ? selectHasBookingConflict(
           state,
-          resourceId,
+          selectedResourceIds,
           toLocalIso(bookingDate, startTime),
           toLocalIso(bookingDate, endTime),
         )
       : false,
   )
-  const selectedResource = availableResources.find(({ id }) => id === resourceId)
+  const selectedResourcesAvailable =
+    Boolean(roomId) &&
+    selectedResourceIds.every((id) =>
+      resources.some(({ id: resourceId, status }) => resourceId === id && status === 'available'),
+    )
   const canSubmit =
-    Boolean(selectedResource && title.trim() && validInterval) && !conflict
+    selectedResourcesAvailable && Boolean(title.trim() && validInterval) && !conflict
+
+  const toggleDevice = (deviceId: string) => {
+    setDeviceIds((currentIds) =>
+      currentIds.includes(deviceId)
+        ? currentIds.filter((id) => id !== deviceId)
+        : [...currentIds, deviceId],
+    )
+  }
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -114,7 +137,7 @@ function BookingForm({
     dispatch(
       addBooking({
         id: crypto.randomUUID(),
-        resourceId,
+        resourceIds: selectedResourceIds,
         title: title.trim(),
         startsAt: toLocalIso(bookingDate, startTime),
         endsAt: toLocalIso(bookingDate, endTime),
@@ -143,8 +166,8 @@ function BookingForm({
             ×
           </button>
         </div>
-        {availableResources.length === 0 ? (
-          <p>Немає доступних ресурсів для бронювання.</p>
+        {availableRooms.length === 0 ? (
+          <p>Немає доступних кімнат для бронювання.</p>
         ) : (
           <form className="booking-form" onSubmit={handleSubmit}>
             <label>
@@ -158,35 +181,55 @@ function BookingForm({
               />
             </label>
             <label>
-              Ресурс
+              Кімната
               <select
-                onChange={(event) => setResourceId(event.target.value)}
-                value={resourceId}
+                onChange={(event) => setRoomId(event.target.value)}
+                value={roomId}
               >
-                {(['room', 'device'] as const).map((type) => (
-                  <optgroup
-                    key={type}
-                    label={type === 'room' ? 'Кімнати' : 'Обладнання'}
+                {resourcesByType.room.map((resource) => (
+                  <option
+                    disabled={resource.status !== 'available'}
+                    key={resource.id}
+                    value={resource.id}
                   >
-                    {resourcesByType[type].map((resource) => (
-                      <option
-                        disabled={resource.status !== 'available'}
-                        key={resource.id}
-                        value={resource.id}
-                      >
-                        {resource.name}
-                        {resource.status !== 'available' ? ' · на обслуговуванні' : ''}
-                      </option>
-                    ))}
-                  </optgroup>
+                    {resource.name}
+                    {resource.status !== 'available' ? ' · на обслуговуванні' : ''}
+                  </option>
                 ))}
               </select>
             </label>
             <p className="form-hint">
-              У списку кімнати й обладнання згруповані окремо. Пристрої на
-              обслуговуванні недоступні для бронювання. Одне бронювання — один
-              ресурс; для кімнати й обладнання створи окремі бронювання.
+              Обери кімнату та, за потреби, додай обладнання до цього бронювання.
             </p>
+            {devices.length > 0 && (
+              <fieldset className="device-picker">
+                <legend>Обладнання</legend>
+                <div className="device-options">
+                  {devices.map((device) => (
+                    <label
+                      className={device.status === 'available' ? '' : 'device-unavailable'}
+                      key={device.id}
+                    >
+                      <input
+                        checked={deviceIds.includes(device.id)}
+                        disabled={device.status !== 'available'}
+                        onChange={() => toggleDevice(device.id)}
+                        type="checkbox"
+                      />
+                      <span>{device.name}</span>
+                      {device.status !== 'available' && (
+                        <small>На обслуговуванні</small>
+                      )}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            )}
+            {conflict && (
+              <p className="form-error" role="alert">
+                Кімната або одне з обраних пристроїв уже заброньовані на цей час.
+              </p>
+            )}
             <label>
               Дата бронювання
               <input
@@ -227,11 +270,6 @@ function BookingForm({
                 Час завершення має бути пізніше за час початку.
               </p>
             )}
-            {conflict && (
-              <p className="form-error" role="alert">
-                Цей ресурс уже заброньовано на вказаний час.
-              </p>
-            )}
             <div className="modal-actions">
               <button className="button button-secondary" onClick={onClose} type="button">
                 Скасувати
@@ -268,7 +306,7 @@ function App() {
 
   const renderResourceRow = (resource: Resource) => {
     const resourceBookings = bookings.filter(
-      (booking) => booking.resourceId === resource.id,
+      (booking) => booking.resourceIds.includes(resource.id),
     )
 
     return (

@@ -13,7 +13,7 @@ export interface Resource {
 
 export interface Booking {
   id: string
-  resourceId: string
+  resourceIds: string[]
   title: string
   startsAt: string
   endsAt: string

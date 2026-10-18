@@ -14,6 +14,11 @@ interface PersistedState {
   }
 }
 
+type PersistedBooking = Omit<Booking, 'resourceIds'> & {
+  resourceIds?: string[]
+  resourceId?: string
+}
+
 const isResource = (value: unknown): value is Resource => {
   if (typeof value !== 'object' || value === null) {
     return false
@@ -31,15 +36,22 @@ const isResource = (value: unknown): value is Resource => {
   )
 }
 
-const isBooking = (value: unknown): value is Booking => {
+const isBooking = (value: unknown): value is PersistedBooking => {
   if (typeof value !== 'object' || value === null) {
     return false
   }
 
   const booking = value as Record<string, unknown>
+  const hasResourceIds =
+    Array.isArray(booking.resourceIds) &&
+    booking.resourceIds.length > 0 &&
+    booking.resourceIds.every((resourceId) => typeof resourceId === 'string')
+  const hasLegacyResourceId =
+    typeof booking.resourceId === 'string' && booking.resourceId.length > 0
+
   return (
     typeof booking.id === 'string' &&
-    typeof booking.resourceId === 'string' &&
+    (hasResourceIds || hasLegacyResourceId) &&
     typeof booking.title === 'string' &&
     typeof booking.startsAt === 'string' &&
     !Number.isNaN(Date.parse(booking.startsAt)) &&
@@ -48,6 +60,15 @@ const isBooking = (value: unknown): value is Booking => {
     (booking.status === 'confirmed' || booking.status === 'cancelled')
   )
 }
+
+const normalizeBooking = (booking: PersistedBooking): Booking => ({
+  id: booking.id,
+  resourceIds: booking.resourceIds ?? (booking.resourceId ? [booking.resourceId] : []),
+  title: booking.title,
+  startsAt: booking.startsAt,
+  endsAt: booking.endsAt,
+  status: booking.status,
+})
 
 const loadPersistedState = (): PersistedState | undefined => {
   if (typeof window === 'undefined') {
@@ -89,7 +110,7 @@ const loadPersistedState = (): PersistedState | undefined => {
     return {
       resources: state.resources,
       bookings: {
-        items: savedBookings.items,
+        items: savedBookings.items.map(normalizeBooking),
         selectedDate: savedBookings.selectedDate,
       },
     }

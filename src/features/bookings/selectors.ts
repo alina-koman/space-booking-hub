@@ -14,20 +14,20 @@ const localDateKey = (value: string) => {
 export const selectHasBookingConflict = createSelector(
   [
     (state: RootState) => state.bookings.items,
-    (_state: RootState, resourceId: string) => resourceId,
-    (_state: RootState, _resourceId: string, startsAt: string) => startsAt,
+    (_state: RootState, resourceIds: string[]) => resourceIds,
+    (_state: RootState, _resourceIds: string[], startsAt: string) => startsAt,
     (
       _state: RootState,
-      _resourceId: string,
+      _resourceIds: string[],
       _startsAt: string,
       endsAt: string,
     ) => endsAt,
   ],
-  (bookings, resourceId, startsAt, endsAt) =>
+  (bookings, resourceIds, startsAt, endsAt) =>
     bookings.some(
       (booking) =>
         booking.status === 'confirmed' &&
-        booking.resourceId === resourceId &&
+        booking.resourceIds.some((resourceId) => resourceIds.includes(resourceId)) &&
         new Date(booking.startsAt).getTime() < new Date(endsAt).getTime() &&
         new Date(booking.endsAt).getTime() > new Date(startsAt).getTime(),
     ),
@@ -61,7 +61,7 @@ export const createSelectCompatibleSlots = (resourceIds: string[], date: string)
       const hasConflict = bookings.some(
         (booking: Booking) =>
           booking.status === 'confirmed' &&
-          resourceIds.includes(booking.resourceId) &&
+          booking.resourceIds.some((resourceId) => resourceIds.includes(resourceId)) &&
           new Date(booking.startsAt) < endsAt &&
           new Date(booking.endsAt) > startsAt,
       )

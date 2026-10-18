@@ -15,7 +15,7 @@ const initialState: { items: Booking[]; selectedDate: string } = {
   items: [
     {
       id: 'booking-aurora-1',
-      resourceId: 'room-aurora',
+      resourceIds: ['room-aurora'],
       title: 'Weekly product sync',
       startsAt: atLocalTime('10:00'),
       endsAt: atLocalTime('11:00'),
@@ -23,7 +23,7 @@ const initialState: { items: Booking[]; selectedDate: string } = {
     },
     {
       id: 'booking-aurora-2',
-      resourceId: 'room-aurora',
+      resourceIds: ['room-aurora'],
       title: 'Design review',
       startsAt: atLocalTime('14:30'),
       endsAt: atLocalTime('15:30'),
@@ -31,7 +31,7 @@ const initialState: { items: Booking[]; selectedDate: string } = {
     },
     {
       id: 'booking-orbit-1',
-      resourceId: 'room-orbit',
+      resourceIds: ['room-orbit'],
       title: 'Quarterly planning',
       startsAt: atLocalTime('09:00'),
       endsAt: atLocalTime('10:30'),
