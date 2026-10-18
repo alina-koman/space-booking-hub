@@ -73,6 +73,10 @@ function BookingForm({
 }: BookingFormProps) {
   const dispatch = useAppDispatch()
   const availableResources = resources.filter((resource) => resource.status === 'available')
+  const resourcesByType = {
+    room: resources.filter((resource) => resource.type === 'room'),
+    device: resources.filter((resource) => resource.type === 'device'),
+  }
   const [bookingDate, setBookingDate] = useState(date)
   const [resourceId, setResourceId] = useState(
     initialResourceId ?? availableResources[0]?.id ?? '',
@@ -159,13 +163,30 @@ function BookingForm({
                 onChange={(event) => setResourceId(event.target.value)}
                 value={resourceId}
               >
-                {availableResources.map((resource) => (
-                  <option key={resource.id} value={resource.id}>
-                    {resource.name} · {resource.type === 'room' ? 'кімната' : 'обладнання'}
-                  </option>
+                {(['room', 'device'] as const).map((type) => (
+                  <optgroup
+                    key={type}
+                    label={type === 'room' ? 'Кімнати' : 'Обладнання'}
+                  >
+                    {resourcesByType[type].map((resource) => (
+                      <option
+                        disabled={resource.status !== 'available'}
+                        key={resource.id}
+                        value={resource.id}
+                      >
+                        {resource.name}
+                        {resource.status !== 'available' ? ' · на обслуговуванні' : ''}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </label>
+            <p className="form-hint">
+              У списку кімнати й обладнання згруповані окремо. Пристрої на
+              обслуговуванні недоступні для бронювання. Одне бронювання — один
+              ресурс; для кімнати й обладнання створи окремі бронювання.
+            </p>
             <label>
               Дата бронювання
               <input

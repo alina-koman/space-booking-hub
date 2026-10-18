@@ -611,6 +611,13 @@
   gap: 12px;
 }
 
+.form-hint {
+  margin-top: -10px;
+  color: #858a9b;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
 .form-error {
   margin-top: -8px;
   color: #bd4545;
