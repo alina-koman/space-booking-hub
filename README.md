@@ -24,7 +24,8 @@ npm run build
 - `src/features/resources` — початкові ресурси й селектор фільтрації.
 - `src/features/bookings` — бронювання, перевірка конфліктів, доступні слоти та форматування дат.
 - `src/features/filters` — стан пошуку та фільтрів.
-- `src/components/App.tsx` — компонування сторінки.
+- `src/components/App.tsx` — мінімальна точка входу UI.
+- `src/components/BookingPage.tsx` — стан і компонування сторінки бронювання.
 - `src/components/BookingForm.tsx` і `BookingDetailsModal.tsx` — створення та перегляд бронювань.
 - `src/components/ResourceCalendar.tsx` і `ResourceFilters.tsx` — календар і фільтри ресурсів.
 
