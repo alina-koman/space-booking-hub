@@ -1,7 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit'
 import bookingsReducer from '../features/bookings/bookingSlice'
 import filtersReducer from '../features/filters/filterSlice'
-import resourcesReducer from '../features/resources/resourceSlice'
+import {
+  initialResources,
+  default as resourcesReducer,
+} from '../features/resources/resourceSlice'
 import type { Booking, Resource } from '../types'
 
 const STORAGE_KEY = 'spacebook-state'
@@ -35,6 +38,9 @@ const isResource = (value: unknown): value is Resource => {
     (resource.status === 'available' || resource.status === 'maintenance')
   )
 }
+
+const isResourceArray = (value: unknown): value is Resource[] =>
+  Array.isArray(value) && value.every(isResource)
 
 const isBooking = (value: unknown): value is PersistedBooking => {
   if (typeof value !== 'object' || value === null) {
@@ -89,14 +95,14 @@ const loadPersistedState = (): PersistedState | undefined => {
     const state = parsed as Record<string, unknown>
     const bookings = state.bookings
     if (
-      !Array.isArray(state.resources) ||
-      !state.resources.every(isResource) ||
+      !isResourceArray(state.resources) ||
       typeof bookings !== 'object' ||
       bookings === null
     ) {
       throw new Error('Saved resources or bookings have an invalid format.')
     }
 
+    const savedResources = state.resources
     const savedBookings = bookings as Record<string, unknown>
     if (
       !Array.isArray(savedBookings.items) ||
@@ -108,7 +114,12 @@ const loadPersistedState = (): PersistedState | undefined => {
     }
 
     return {
-      resources: state.resources,
+      resources: [
+        ...savedResources,
+        ...initialResources.filter(
+          ({ id }) => !savedResources.some((resource) => resource.id === id),
+        ),
+      ],
       bookings: {
         items: savedBookings.items.map(normalizeBooking),
         selectedDate: savedBookings.selectedDate,

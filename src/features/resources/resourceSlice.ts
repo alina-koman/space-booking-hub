@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { Resource, ResourceStatus } from '../../types'
 
-const initialState: Resource[] = [
+export const initialResources: Resource[] = [
   {
     id: 'room-aurora',
     name: 'Aurora',
@@ -35,6 +35,38 @@ const initialState: Resource[] = [
     status: 'available',
   },
   {
+    id: 'device-microphone',
+    name: 'Wireless microphone',
+    type: 'device',
+    capacity: 0,
+    equipment: ['Bluetooth', 'USB-C'],
+    status: 'available',
+  },
+  {
+    id: 'device-speakerphone',
+    name: 'Conference speakerphone',
+    type: 'device',
+    capacity: 0,
+    equipment: ['Bluetooth', 'Noise cancellation'],
+    status: 'available',
+  },
+  {
+    id: 'device-webcam',
+    name: 'HD webcam',
+    type: 'device',
+    capacity: 0,
+    equipment: ['1080p', 'USB-C'],
+    status: 'available',
+  },
+  {
+    id: 'device-monitor',
+    name: 'Portable 4K monitor',
+    type: 'device',
+    capacity: 0,
+    equipment: ['4K', 'HDMI', 'USB-C'],
+    status: 'available',
+  },
+  {
     id: 'device-camera',
     name: 'Conference camera',
     type: 'device',
@@ -46,7 +78,7 @@ const initialState: Resource[] = [
 
 const resourcesSlice = createSlice({
   name: 'resources',
-  initialState,
+  initialState: initialResources,
   reducers: {
     addResource: (state, action: PayloadAction<Resource>) => {
       state.push(action.payload)
