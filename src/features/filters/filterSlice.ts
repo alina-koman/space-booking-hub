@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { ResourceType } from '../../types'
+import type { ResourceType } from '../../types/resource'
 
 interface FilterState {
   query: string

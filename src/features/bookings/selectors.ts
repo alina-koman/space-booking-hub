@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit'
 import type { RootState } from '../../app/store'
-import type { Booking } from '../../types'
+import type { Booking } from '../../types/booking'
 
 const localDateKey = (value: string) => {
   const date = new Date(value)

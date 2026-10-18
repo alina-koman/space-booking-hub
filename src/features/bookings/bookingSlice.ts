@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { Booking } from '../../types'
+import type { Booking } from '../../types/booking'
 
 const today = new Date()
 const localDate = [

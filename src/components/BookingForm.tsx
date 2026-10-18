@@ -8,7 +8,7 @@ import {
   toLocalIso,
   toTime,
 } from '../features/bookings/bookingUtils'
-import type { Resource } from '../types'
+import type { Resource } from '../types/resource'
 
 interface BookingFormProps {
   resources: Resource[]

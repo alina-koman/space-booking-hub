@@ -5,7 +5,8 @@ import {
   initialResources,
   default as resourcesReducer,
 } from '../features/resources/resourceSlice'
-import type { Booking, Resource } from '../types'
+import type { Booking } from '../types/booking'
+import type { Resource } from '../types/resource'
 
 const STORAGE_KEY = 'spacebook-state'
 

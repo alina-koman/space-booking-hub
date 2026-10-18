@@ -4,7 +4,7 @@ import {
   setResourceType,
   toggleEquipment,
 } from '../features/filters/filterSlice'
-import type { ResourceType } from '../types'
+import type { ResourceType } from '../types/resource'
 
 interface ResourceFiltersProps {
   equipmentOptions: string[]

@@ -1,5 +1,6 @@
 import { formatBookingDate, formatBookingTime, getBookingColorClass } from '../features/bookings/bookingUtils'
-import type { Booking, Resource } from '../types'
+import type { Booking } from '../types/booking'
+import type { Resource } from '../types/resource'
 
 interface BookingDetailsModalProps {
   booking: Booking

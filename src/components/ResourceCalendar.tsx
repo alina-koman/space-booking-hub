@@ -8,7 +8,8 @@ import {
   toTime,
   TOTAL_MINUTES,
 } from '../features/bookings/bookingUtils'
-import type { Booking, Resource } from '../types'
+import type { Booking } from '../types/booking'
+import type { Resource } from '../types/resource'
 
 interface ResourceCalendarProps {
   resources: Resource[]

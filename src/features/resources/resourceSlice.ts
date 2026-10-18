@@ -1,5 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { Resource, ResourceStatus } from '../../types'
+import type { Resource, ResourceStatus } from '../../types/resource'
 
 export const initialResources: Resource[] = [
   {
